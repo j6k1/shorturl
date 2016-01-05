@@ -3,6 +3,7 @@
 use Todays\Libs\ShortUrl\ShortUrl;
 use \Todays\Libs\ShortUrl\Exception\InvalidTokenException;
 use \Todays\Libs\ShortUrl\Exception\InvalidUrlException;
+use \Todays\Libs\ShortUrl\Exception\OriginalUrlNotFoundException;
 use Todays\Sample\ShortUrl\Environment;
 use Todays\Sample\ShortUrl\DataStore;
 use Todays\Sample\ShortUrl\Config;
@@ -14,6 +15,18 @@ class Tests_ShortUrl extends PHPUnit_Framework_TestCase {
 		"dbuser" => "shorturltest",
 		"dbpass" => "shorturltestpass"
 	];
+	
+	public function init_table()
+	{
+		$connection = new \PDO(
+			"mysql:host=" . static::$dbconfig["dbhost"] . ";" .
+			"dbname=" . static::$dbconfig["database"],
+			static::$dbconfig["dbuser"],
+			static::$dbconfig["dbpass"]
+		);
+		
+		$connection->query("truncate table shorturl_original;");
+	}
 	
 	public function test_getMinLength()
 	{
@@ -155,6 +168,13 @@ class Tests_ShortUrl extends PHPUnit_Framework_TestCase {
 		}
 	}
 
+	public function test_ValidateUrl_success()
+	{
+		$shorturl = new ShortUrl(new Environment(), new DataStore(static::$dbconfig));
+	
+		$this->assertTrue($shorturl->validateUrl("http://yahoo.co.jp"));
+	}
+	
 	public function test_ValidateUrl_fail_character_0x00()
 	{
 		$shorturl = new ShortUrl(new Environment(), new DataStore(static::$dbconfig));
@@ -516,5 +536,40 @@ class Tests_ShortUrl extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(
 			substr("http://yahoo.co.jp/%E3%81%82%E3%81%82%E3%81%82/aaa/".str_repeat("%E3%81%82", 512), 0, 768), 
 			$shorturl->filterUrl($url));
+	}
+	
+	public function test_getShortUrl_and_getOriginalUrl_success()
+	{
+		$this->init_table();
+		
+		$shorturl = new ShortUrl(new Environment(), new DataStore(static::$dbconfig));
+	
+		$url = "http://yahoo.co.jp";
+		
+		$shortedurl = $shorturl->getShortUrl($url);
+		
+		list(,,, $token) = explode("/", $shortedurl);
+		
+		$this->assertEquals("http://yahoo.co.jp", $shorturl->getOriginalUrl($token));
+	}
+
+	public function test_getShortUrl_fail_notfound()
+	{
+		$this->init_table();
+		
+		$shorturl = new ShortUrl(new Environment(), new DataStore(static::$dbconfig));
+	
+		$url = "http://yahoo.co.jp";
+		
+		$shortedurl = $shorturl->getShortUrl($url);
+		
+		list(,,, $token) = explode("/", $shortedurl);
+		
+		try {
+			$shorturl->getOriginalUrl($token."a");
+			$this->fail();
+		} catch (OriginalUrlNotFoundException $e) {
+			$this->assertTrue(true);
+		}
 	}
 }

@@ -31,6 +31,11 @@ class DataStore extends \Todays\Libs\ShortUrl\DataStore {
 		$this->connect();
 	}
 	
+	public function __destruct()
+	{
+		$this->_dbconnection = null;
+	}
+	
 	protected function connect()
 	{
 		$this->_dbconnection = new \PDO(
@@ -57,7 +62,7 @@ select
 EOM;
 		$stmt = $this->_dbconnection->prepare($sql);
 		
-		$stmt->bindValue(":id", $id, PDO::PARAM_INT);
+		$stmt->bindValue(":id", $id, \PDO::PARAM_INT);
 		
 		if($stmt->execute() === false)
 		{
@@ -82,7 +87,7 @@ insert into
 EOM;
 		$stmt = $this->_dbconnection->prepare($sql);
 
-		$stmt->bindValue(":original_url", $url, PDO::PARAM_STR);
+		$stmt->bindValue(":original_url", $url, \PDO::PARAM_STR);
 
 		if($stmt->execute() === false)
 		{

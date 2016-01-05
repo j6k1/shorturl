@@ -35,6 +35,11 @@ class ShortUrl {
 		}
 	}
 	
+	public function __destruct()
+	{
+		$this->_datastore = null;
+	}
+	
 	public function __construct(Environment $env, DataStore $datastore)
 	{
 		$this->_env = $env;
@@ -130,11 +135,11 @@ class ShortUrl {
 	{
 		$this->validateUrl($url);
 		
-		$result = $this->_datastore->insertUrl($this->filterUrl($url));
+		$id = $this->_datastore->insertUrl($this->filterUrl($url));
 		
-		if(is_null($result)) throw new UrlInsertFailException("短縮URLに対応するURLのデータベースへの登録に失敗しました。");
+		if(is_null($id)) throw new UrlInsertFailException("短縮URLに対応するURLのデータベースへの登録に失敗しました。");
 		
-		return sprintf("https://%s/%s", $this->_env->hostname(), $this->encodeToBase62((int)$result["id"]));
+		return sprintf("http://%s/%s", $this->_env->hostname(), $this->encodeToBase62((int)$id));
 	}
 	
 	public function getOriginalUrl($token)
@@ -147,6 +152,6 @@ class ShortUrl {
 		
 		if(is_null($result)) throw new OriginalUrlNotFoundException("指定したトークンに対応するIDを持つURLはデータベース上に存在しません。");
 
-		$result["original_url"];
+		return $result["original_url"];
 	}
 }
