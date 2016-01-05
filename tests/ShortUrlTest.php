@@ -513,9 +513,9 @@ class Tests_ShortUrl extends PHPUnit_Framework_TestCase {
 	{
 		$shorturl = new ShortUrl(new Environment(), new DataStore(static::$dbconfig));
 	
-		$url = "http://yahoo.co.jp/".str_repeat("a", 1024);
+		$url = "http://yahoo.co.jp/".str_repeat("a", 6000);
 		
-		$this->assertEquals(substr("http://yahoo.co.jp/".str_repeat("a", 1024), 0, 768), $shorturl->filterUrl($url));
+		$this->assertEquals(substr("http://yahoo.co.jp/".str_repeat("a", 6000), 0, 4096), $shorturl->filterUrl($url));
 	}
 	
 	public function test_filterUrl_encode_multibyte()
@@ -531,10 +531,10 @@ class Tests_ShortUrl extends PHPUnit_Framework_TestCase {
 	{
 		$shorturl = new ShortUrl(new Environment(), new DataStore(static::$dbconfig));
 	
-		$url = "http://yahoo.co.jp/あああ/aaa/".str_repeat("あ", 512);
+		$url = "http://yahoo.co.jp/あああ/aaa/".str_repeat("あ", 1024);
 		
 		$this->assertEquals(
-			substr("http://yahoo.co.jp/%E3%81%82%E3%81%82%E3%81%82/aaa/".str_repeat("%E3%81%82", 512), 0, 768), 
+			substr("http://yahoo.co.jp/%E3%81%82%E3%81%82%E3%81%82/aaa/".str_repeat("%E3%81%82", 1024), 0, 4096), 
 			$shorturl->filterUrl($url));
 	}
 	

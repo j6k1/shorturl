@@ -48,7 +48,7 @@ class DataStore extends \Todays\Libs\ShortUrl\DataStore {
 	
 	public function getMaxShortUrlLength()
 	{
-		return 768;
+		return 4096;
 	}
 	
 	public function findUrl($id)
