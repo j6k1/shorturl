@@ -3,6 +3,9 @@ namespace Todays\Libs\ShortUrl;
 
 use \Todays\Libs\ShortUrl\Environment;
 use \Todays\Libs\ShortUrl\DataStore;
+use \Todays\Libs\ShortUrl\RegExp;
+use \Todays\Libs\ShortUrl\Exception\InvalidTokenException;
+use \Todays\Libs\ShortUrl\Exception\InvalidUrlException;
 
 class ShortUrl {
 	protected $_env;
@@ -14,6 +17,8 @@ class ShortUrl {
 	
 	protected static $reverse_asciiTable = [];
 	protected static $reverse_shuffleTable = [];
+	
+	const MIN_TOKEN_LENGTH = 6;
 	
 	public static function _init()
 	{
@@ -36,7 +41,12 @@ class ShortUrl {
 	
 	public function getMinLength()
 	{
-		return strlen(sprintf("https://%s/%s", $this->_env->hostname(), str_repeat("a", 6)));
+		if(!isset(static::$min_length))
+		{
+			static::$min_length = strlen(sprintf("https://%s/%s", $this->_env->hostname(), str_repeat("a", static::MIN_TOKEN_LENGTH)));
+		}
+		
+		return static::$min_length;
 	}
 	
 	public function validateBase62Token($token)
@@ -47,8 +57,27 @@ class ShortUrl {
 		}
 		else
 		{
-			throw new \RuntimeException("トークンの形式が不正です。");
+			throw new InvalidTokenException("トークンの形式が不正です。");
 		}
+	}
+	
+	public function validateUrl($url)
+	{
+		if(preg_match('/^'.RegExp::VALID_URL.'\z/', $url))
+		{
+			return true;
+		}
+		else
+		{
+			throw new InvalidUrlException("URLの形式が不正です。");
+		}
+	}
+	
+	public function filterUrl($url)
+	{
+		return substr(preg_replace_callback('/'.RegExp::MULTIBYTE_STRING.'/', function ($m) {
+			return rawurlencode($m[0]);
+		}, $url), 0, $this->_datastore->getMaxShortUrlLength());
 	}
 	
 	public function encodeToBase62($id)
@@ -70,7 +99,7 @@ class ShortUrl {
 		do {
 			$token[$i] = chr(static::$asciiTable[static::$shuffleTable[(int)(floor($source / pow(62, $i))) % 62]]);
 			$i++;
-		} while((static::$min_length > $i) || (pow(62, $i) <= $source));
+		} while((static::MIN_TOKEN_LENGTH > $i) || (pow(62, $i) <= $source));
 		
 		return implode("", $token);
 	}
@@ -93,5 +122,23 @@ class ShortUrl {
 		$id = ($id | ($low4bits << 31) | ($high4bits >> 31));
 		
 		return $id;
+	}
+	
+	public function getShortUrl($url)
+	{
+		$this->validateUrl($url);
+		
+		$id = $this->_datastore->insertUrl($this->filterUrl($url));
+		
+		return sprintf("https://%s/%s", $this->_env->hostname(), $this->encodeToBase62((int)$id));
+	}
+	
+	public function getOriginalUrl($token)
+	{
+		$this->validateBase62Token($token);
+		
+		$id = $this->decodeFromBase62($token);
+		
+		return $this->_datastore->findUrl($id);
 	}
 }
