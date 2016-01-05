@@ -11,7 +11,7 @@ class Tests_ShortUrl extends PHPUnit_Framework_TestCase {
 	private static $dbconfig = [
 		"dbhost" => "localhost",
 		"database" => "shorturltest",
-		"dbuser" => "shorturluser",
+		"dbuser" => "shorturltest",
 		"dbpass" => "shorturltestpass"
 	];
 	

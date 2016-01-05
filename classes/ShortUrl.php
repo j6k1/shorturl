@@ -6,6 +6,8 @@ use \Todays\Libs\ShortUrl\DataStore;
 use \Todays\Libs\ShortUrl\RegExp;
 use \Todays\Libs\ShortUrl\Exception\InvalidTokenException;
 use \Todays\Libs\ShortUrl\Exception\InvalidUrlException;
+use \Todays\Libs\ShortUrl\Exception\UrlInsertFailException;
+use \Todays\Libs\ShortUrl\Exception\OriginalUrlNotFoundException;
 
 class ShortUrl {
 	protected $_env;
@@ -128,9 +130,11 @@ class ShortUrl {
 	{
 		$this->validateUrl($url);
 		
-		$id = $this->_datastore->insertUrl($this->filterUrl($url));
+		$result = $this->_datastore->insertUrl($this->filterUrl($url));
 		
-		return sprintf("https://%s/%s", $this->_env->hostname(), $this->encodeToBase62((int)$id));
+		if(is_null($result)) throw new UrlInsertFailException("短縮URLに対応するURLのデータベースへの登録に失敗しました。");
+		
+		return sprintf("https://%s/%s", $this->_env->hostname(), $this->encodeToBase62((int)$result["id"]));
 	}
 	
 	public function getOriginalUrl($token)
@@ -139,6 +143,10 @@ class ShortUrl {
 		
 		$id = $this->decodeFromBase62($token);
 		
-		return $this->_datastore->findUrl($id);
+		$result = $this->_datastore->findUrl($id);
+		
+		if(is_null($result)) throw new OriginalUrlNotFoundException("指定したトークンに対応するIDを持つURLはデータベース上に存在しません。");
+
+		$result["original_url"];
 	}
 }
