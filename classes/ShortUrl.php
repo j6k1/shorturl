@@ -50,7 +50,7 @@ class ShortUrl {
 	{
 		if(!isset(static::$min_length))
 		{
-			static::$min_length = strlen(sprintf("https://%s/%s", $this->_env->hostname(), str_repeat("a", static::MIN_TOKEN_LENGTH)));
+			static::$min_length = strlen(sprintf("http://%s/%s", $this->_env->hostname(), str_repeat("a", static::MIN_TOKEN_LENGTH)));
 		}
 		
 		return static::$min_length;

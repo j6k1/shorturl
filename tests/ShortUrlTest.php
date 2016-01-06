@@ -32,7 +32,7 @@ class Tests_ShortUrl extends PHPUnit_Framework_TestCase {
 	{
 		$shorturl = new ShortUrl(new Environment(), new DataStore(static::$dbconfig));
 		
-		$this->assertEquals(strlen(sprintf("https://%s/%s", Config::HOST_NAME, "aaaaaa")), $shorturl->getMinLength());
+		$this->assertEquals(strlen(sprintf("http://%s/%s", Config::HOST_NAME, "aaaaaa")), $shorturl->getMinLength());
 	}
 	
 	public function test_EncodeToBase62AndDecodeFromBase62_int()
@@ -175,6 +175,33 @@ class Tests_ShortUrl extends PHPUnit_Framework_TestCase {
 		$this->assertTrue($shorturl->validateUrl("http://yahoo.co.jp"));
 	}
 	
+	public function test_ValidateUrl_success_query()
+	{
+		$shorturl = new ShortUrl(new Environment(), new DataStore(static::$dbconfig));
+	
+		$this->assertTrue($shorturl->validateUrl("http://yahoo.co.jp?q=あああ%E3%81%82aaaああ"));
+	}
+	
+	public function test_ValidateUrl_success_fragmenthash()
+	{
+		$shorturl = new ShortUrl(new Environment(), new DataStore(static::$dbconfig));
+	
+		$this->assertTrue($shorturl->validateUrl("http://yahoo.co.jp#/あああ%E3%81%82/aaaああ"));
+	}
+	
+	public function test_ValidateUrl_success_query_and_fragmenthash()
+	{
+		$shorturl = new ShortUrl(new Environment(), new DataStore(static::$dbconfig));
+	
+		$this->assertTrue($shorturl->validateUrl("http://yahoo.co.jp?q=あああ%E3%81%82aaaああ#/あああ%E3%81%82/aaaああ"));
+	}
+	
+	public function test_ValidateUrl_success_slash_and_query_and_fragmenthash()
+	{
+		$shorturl = new ShortUrl(new Environment(), new DataStore(static::$dbconfig));
+	
+		$this->assertTrue($shorturl->validateUrl("http://yahoo.co.jp/あああ%E3%81%82aaa?q=あああ%E3%81%82aaaああ#/あああ%E3%81%82/aaaああ"));
+	}
 	public function test_ValidateUrl_fail_character_0x00()
 	{
 		$shorturl = new ShortUrl(new Environment(), new DataStore(static::$dbconfig));
