@@ -13,14 +13,14 @@ use Todays\Sample\ShortUrl\Config;
 class Create_Index_Controller extends Abstract_Controller {
 	public function run()
 	{
-		if($_SERVER["REQUEST_METHOD"] === "POST")
+		if($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["original_url"]))
 		{
 			$shorturl = new ShortUrl(new Environment(), new DataStore());
 			
 			$vars = [];
 			
 			try {
-				$vars["shorturl"] = $shorturl->getShortUrl();
+				$vars["shorturl"] = $shorturl->getShortUrl($_POST["original_url"]);
 			} catch (InvalidUrlException $e) {
 				$vars["message"] = $e->getMessage();
 			} catch (UrlInsertFailException $e) {

@@ -31,16 +31,20 @@ body { background-color: #f4f2eb; margin: 20px 10px 10px 10px; font-family: Aria
 	border: 1px solid #f8ea1a;
 	padding: 10px;
 }
-#body > p > form {
-	width: 300px;
+#container form {
+	width: 100%;
 	padding: 20px 0px 20px 0px;
 	margin: 0 auto;
 }
-#body > p > form > input {
-	width: 100%;
+#container input {
+	width: 300px;
 	padding: 0px;
 }
-#body #container #shorturl {
+#container input[type=submit] {
+	width: 80px;
+	padding: 0px;
+}
+#container #shorturl {
 	font-size: 36px;
 	font-weight: bold;
 }
