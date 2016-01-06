@@ -10,7 +10,7 @@
 	body { background-color: #f4f2eb; margin: 20px 10px 10px 10px; font-family: Arial,"ヒラギノ角ゴ Pro W3","Hiragino Kaku Gothic Pro",Osaka,"メイリオ",Meiryo,"ＭＳ Ｐゴシック","MS PGothic",sans-serif; font-size: 12px; color: #b16460; }
 
 	#container  {
-		max-width: 600px;
+		max-width: 1000px;
 		padding: 0px;
 		margin: 0 auto;
 	}

@@ -19,9 +19,9 @@ class Service_Index_Controller extends Abstract_Controller {
 	public function run()
 	{
 		$shorturl = new ShortUrl(new Environment(), new DataStore($this->dbconfig()));
-		
+
 		$hash = isset($_GET["hash"]) ? $_GET["hash"] : null;
-		
+
 		if(empty($hash))
 		{
 			$this->send_status(400);
