@@ -11,11 +11,6 @@ use Todays\Sample\ShortUrl\DataStore;
 use Todays\Sample\ShortUrl\Config;
 
 class Service_Index_Controller extends Abstract_Controller {
-	protected function dbconfig()
-	{
-		return [];
-	}
-	
 	public function run()
 	{
 		$shorturl = new ShortUrl(new Environment(), new DataStore($this->dbconfig()));

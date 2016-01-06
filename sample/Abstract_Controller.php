@@ -2,7 +2,7 @@
 
 namespace Todays\Sample\ShortUrl;
 
-class Abstract_Controller {
+abstract class Abstract_Controller {
 	public static $statuses = [
 		100 => 'Continue',
 		101 => 'Switching Protocols',
@@ -92,5 +92,10 @@ class Abstract_Controller {
 			
 			echo ob_get_clean();
 		},$view_path, $vars);
+	}
+
+	protected function dbconfig()
+	{
+		return [];
 	}
 }

@@ -15,7 +15,7 @@ class Create_Index_Controller extends Abstract_Controller {
 	{
 		if($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["original_url"]))
 		{
-			$shorturl = new ShortUrl(new Environment(), new DataStore());
+			$shorturl = new ShortUrl(new Environment(), new DataStore($this->dbconfig()));
 			
 			$vars = [];
 			
